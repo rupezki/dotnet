@@ -1,0 +1,96 @@
+@page "/person/details/{Id:int}"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@inject HttpClient Http
+@using PeopleLib
+
+
+<PageTitle>details</PageTitle>
+
+
+
+@if (Per == null)
+{
+    <p>No Todo Items found.</p>
+}
+else
+{
+    <table>
+        <thead><tr></tr></thead>
+        <tbody>
+        <tr><td>@person.FirstName</td>>
+        <td>@person.LastName</td>
+        <td>@person.Title</td>
+
+        @foreach (var item in A)
+        {
+            <td>@item.StreetAddress</td>
+            <td>@item.PostalNumber</td>
+            <td>@item.PostalAddress</td>
+            <td>@item.Info</td>
+        }
+        <a href="/person/edit/@Id" target="_blank">edit</a></tr> 
+        
+        </tbody>
+    </table>
+}
+
+@code {
+    private Person[]? Per;
+    private Address[]? Add;
+
+    private Person person;
+
+    private ContactInfo[]? Con;
+    [Parameter]
+    public int Id{get; set;}
+    private class Addinfo
+{
+    public string Info { get; set; }
+
+    public string StreetAddress { get; set; }
+
+    public int PostalNumber { get; set; }
+
+    public string  PostalAddress { get; set; }
+}
+    private List<Addinfo> A = new List<Addinfo>();
+
+    protected override async Task OnInitializedAsync() {
+        Per = await Http.GetFromJsonAsync<Person[]>("/people");
+        Add = await Http.GetFromJsonAsync<Address[]>("/Address");
+        Con = await Http.GetFromJsonAsync<ContactInfo[]>("/contactinfo");
+
+        foreach (var item in Con){
+
+            if(item.PersonId == Id){
+
+                foreach (var Item in Add)
+                {
+                    if (item.AddressId == Item.Id)
+                    {   
+                        Addinfo addinfo = new Addinfo();
+                        addinfo.StreetAddress = Item.StreetAddress;
+                        addinfo.PostalNumber = Item.PostalNumber;
+                        addinfo.PostalAddress = Item.PostalAddress;
+                        addinfo.Info = item.Info;
+
+                        A.Add(addinfo);
+                    }
+                }
+            }
+        }
+
+        foreach (var item in Per)
+        {
+            if (item.Id == Id)
+            {
+                person = item;
+            }
+        }
+    }
+
+
+
+}

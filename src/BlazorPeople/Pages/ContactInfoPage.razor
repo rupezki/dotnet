@@ -1,0 +1,55 @@
+@page "/Contactinfo"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@inject HttpClient Http
+@using PeopleLib
+
+
+<PageTitle>details</PageTitle>
+
+
+
+@if (Per == null)
+{
+    <p>No Todo Items found.</p>
+}
+else
+{
+   <EditForm Model="contact" OnValidSubmit="submit">
+    <InputSelect id="foraddress" @bind-Value="contact.AddressId">
+        @foreach (var item in Add)
+        {
+            <Option value="@item.Id">@item.PostalAddress</Option>
+        }
+    </InputSelect>
+
+     <InputSelect id="forperson" @bind-Value="contact.PersonId">
+        @foreach (var item in Per)
+        {
+            <Option value="@item.Id">@item.FirstName @item.LastName</Option>
+        }
+    </InputSelect>
+    <InputTextArea @bind-Value="contact.Info"></InputTextArea>
+    <button type="submit">Join</button>
+   </EditForm>
+}
+
+@code {
+    private Person[]? Per;
+    private Address[]? Add;
+
+    private ContactInfo contact = new();
+
+    protected override async Task OnInitializedAsync() {
+        Per = await Http.GetFromJsonAsync<Person[]>("/people");
+        Add = await Http.GetFromJsonAsync<Address[]>("/Address");
+
+    }
+
+    private async Task submit(){
+
+        await Http.PostAsJsonAsync($"/ContactInfo",contact);
+    }
+
+}

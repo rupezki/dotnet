@@ -1,0 +1,38 @@
+﻿@page "/"
+@using System.Net.Http
+@using System.Net.Http.Json
+@using System.Threading.Tasks
+@inject HttpClient Http
+@using PeopleLib
+
+
+<PageTitle>Index</PageTitle>
+
+
+
+@if (Per == null)
+{
+    <p>No Todo Items found.</p>
+}
+else
+{
+    <table>
+        <thead><tr></tr></thead>
+        <tbody>
+        @foreach (var item in Per)
+        {
+            <tr><td>@item.FirstName</td>><td>@item.LastName</td><td>@item.Title</td><a href="/person/details/@item.Id" target="_blank"></a></tr>
+        }
+        </tbody>
+    </table>
+}
+
+@code {
+    private Person[]? Per;
+
+    protected override async Task OnInitializedAsync() => 
+        Per = await Http.GetFromJsonAsync<Person[]>("/people");
+}
+
+
+
